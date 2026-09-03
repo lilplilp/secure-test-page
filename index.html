@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>加密測試頁面</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.2.0/crypto-js.min.js"></script>
+<style>
+  :root { color-scheme: light dark; }
+  body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+    background: #f4f4f6;
+  }
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    padding: 32px;
+    width: 100%;
+    max-width: 420px;
+  }
+  h2 { margin-top: 0; font-size: 1.25rem; }
+  input[type="password"] {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 10px 12px;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin: 12px 0;
+  }
+  button {
+    width: 100%;
+    padding: 10px 12px;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: #2563eb;
+    color: #fff;
+    cursor: pointer;
+  }
+  button:hover { background: #1d4ed8; }
+  #error { color: #dc2626; font-size: 0.9rem; min-height: 1.2em; margin-top: 4px; }
+  #content { display: none; line-height: 1.6; }
+</style>
+</head>
+<body>
+
+<div class="card" id="gate">
+  <h2>🔒 這是一份加密頁面</h2>
+  <p>請輸入密碼以檢視內容。</p>
+  <input type="password" id="pw" placeholder="請輸入密碼" autofocus>
+  <button onclick="tryDecrypt()">解鎖</button>
+  <div id="error"></div>
+</div>
+
+<div class="card" id="content"></div>
+
+<script>
+  // 這段是用 AES-256 加密過的內容，密碼不會被存在這個檔案裡，
+  // 只有知道密碼的人才能還原出下面的原始內容。
+  var CIPHERTEXT = "U2FsdGVkX1+AxVpLgMTWWL4UFMT1MlFcr2F96wZOEQt8YPV4lil1ywu6ZCL3g2dS4MxrKm9v8Vky0VW532sH84PI6jWmTOy3kmxajjJrEPGMvW1U472r6QfsEUx6MfAWgTCGwGdHezK4lGp1LOn/FqfvMbxbfZZTCTbszceFhBC9dQ++nBLVeMN9O+bQ50mnfGRlvxS/XIR9fG7zvDBVokEJILaXS8ZtqyM16YXnYfnHOhH8eKWLXzM1Pu0OBdMZ78S6e6q35nz2/3Y2c/fILkItjgJ9w+SqHQ5wkZd9BO6xihP3+odnOBU6RyjeQW7lD8u2m/a4L8IQcqx0gG+pow==";
+
+  function tryDecrypt() {
+    var pw = document.getElementById('pw').value;
+    var errorEl = document.getElementById('error');
+    errorEl.textContent = '';
+    try {
+      var bytes = CryptoJS.AES.decrypt(CIPHERTEXT, pw);
+      var plaintext = bytes.toString(CryptoJS.enc.Utf8);
+      if (!plaintext) { throw new Error('empty'); }
+      document.getElementById('gate').style.display = 'none';
+      var contentEl = document.getElementById('content');
+      contentEl.innerHTML = plaintext;
+      contentEl.style.display = 'block';
+    } catch (e) {
+      errorEl.textContent = '密碼錯誤，請再試一次。';
+    }
+  }
+
+  document.getElementById('pw').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') tryDecrypt();
+  });
+</script>
+
+</body>
+</html>
